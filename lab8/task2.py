@@ -10,8 +10,8 @@ VXMIN, VXMAX = -5, 5
 VYMIN, VYMAX = -5, 5
 RMIN, RMAX = 10, 30
 screen = pygame.display.set_mode((1500, 800))
-font_score = pygame.font.SysFont('Times New Roman', 50, True)
-font_plus_score = pygame.font.SysFont('Times New Roman', 30, True)
+font_score = pygame.font.SysFont('Comic Sans MS', 50, True)
+font_plus_score = pygame.font.SysFont('Comic Sans MS', 30, True)
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -68,8 +68,8 @@ class Ball():
             self.r = RMIN
             self.score = 10
         else:
-            self.vx = randint(VXMIN, VXMAX)
-            self.vy = randint(VYMIN, VYMAX)
+            self.vx = randint(int(VXMIN), int(VXMAX))
+            self.vy = randint(int(VYMIN), int(VYMAX))
             self.r = randint(RMIN, RMAX)
             self.score = round(40 / self.r)
         self.t = randint(FPS, 10*FPS)
@@ -150,6 +150,8 @@ def count_if_hit_ball(pos):
     '''
     Проверка попадания места щелчка в шарик и обновление суммы очков
     '''
+    global VXMAX, VXMIN, VYMAX, VYMIN
+    score = 0
     x_click, y_click = pos
     for color_balls in balls.colors_balls.values():
         for ball in color_balls:
@@ -157,13 +159,17 @@ def count_if_hit_ball(pos):
                 ball.burst = True
                 ball.t = ball.r
                 plus_scores.plus_scores.add(Plus_Score(ball.x, ball.y, ball.score))
-                return ball.score
+                score = ball.score
     if not special_ball.burst and (x_click-special_ball.x)**2 + (y_click-special_ball.y)**2 <= special_ball.r**2:
         special_ball.burst = True
         special_ball.t = special_ball.r
         plus_scores.plus_scores.add(Plus_Score(special_ball.x, special_ball.y, special_ball.score))
-        return special_ball.score
-    return 0
+        score = special_ball.score
+    VXMAX += score / 10
+    VXMIN -= score / 10
+    VYMAX += score / 10
+    VYMIN -= score / 10
+    return score
 
 
 def print_count():
