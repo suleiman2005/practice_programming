@@ -25,26 +25,41 @@ COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 
 class Balls():
+	'''
+	Содержит шесть итерируемых объектов для каждого цвета шаров
+	Каждый итерируемый объект содержит все шары своего цвета
+	'''
 	def __init__(self):
 		self.colors_balls = {0: set(), 1: set(), 2: set(), 3: set(), 4: set(), 5: set()}
 	
-	def generate_new(self):
+	def generate_new(self):  # Генерирует новый шар с некоторой вероятностью
 		rnd = randint(0, 100)
 		if rnd >= 95:
 			ball = Ball()
 			self.colors_balls[ball.color].add(ball)
 	
-	def draw(self):
+	def draw(self):  # Рисует все шары
 		for color_balls in self.colors_balls.values():
 			for ball in color_balls:
 				ball.draw()
 	
-	def remove_old(self):
+	def remove_old(self):  # Удаляет старые шары с истёкшим временем жизни
 		for i in range(len(COLORS)):
 			self.colors_balls[i] = set(filter(lambda x: x.t > 0, self.colors_balls[i]))
 
 
 class Ball():
+    '''
+    x, y - координаты шара
+    vx, vy - проекции скорости на координаты
+    r - радиус шара
+    score - количество очков, которое даёт шар
+    t - время жизни шара (в кадрах), используется для реализации плавного удаления шара
+    r_up - возрастаюая переменная, связанная с радиусом шара, позволяет реализовать плавное появление шара
+    color - цвет шара
+    burst - булевая переменная, содержащая в себе информацию, было ли попадание в этот шарик
+    is_second_type - булевая переменная, содержащая в себе информацию, какого типа шарик (True, если второго)
+    '''
     def __init__(self, is_second_type=False):
         self.is_second_type = is_second_type
         if self.is_second_type:
@@ -64,7 +79,7 @@ class Ball():
         self.color = randint(0, 5)
         self.burst = False
 
-    def draw(self):
+    def draw(self):  # рисует шар
         if self.is_second_type:
             self.color = (self.color+0.5) % 5.5
         self.r_up += 1
@@ -75,7 +90,7 @@ class Ball():
             circle(screen, COLORS[round(self.color)], (self.x, self.y), min(self.r, self.r_up))
         self.move()
 
-    def move(self):
+    def move(self):  # рассчёт перемещения центра масс
         self.t -= 1
         self.x += self.vx
         self.y += self.vy
@@ -98,33 +113,43 @@ class Ball():
 
 
 class Plus_Scores():
-	def __init__(self):
-		self.plus_scores = set()
+    '''
+    Содержит итерируемый объект, элементами которого являются объекты класса Plus_Score
+    '''
+    def __init__(self):
+        self.plus_scores = set()
 
-	def print_scores(self):
-		for plus_score in self.plus_scores:
-			plus_score.print_score()
+    def print_scores(self):  # вывод сообщения о количестве очков за пойманные шарики в местах щелчков
+        for plus_score in self.plus_scores:
+            plus_score.print_score()
 	
-	def remove_old(self):
-		self.plus_scores = set(filter(lambda x: x.t > 0, self.plus_scores))
+    def remove_old(self):  # удаление старых сообщений
+        self.plus_scores = set(filter(lambda x: x.t > 0, self.plus_scores))
 
 
 class Plus_Score():
-	def __init__(self, x, y, score):
-		self.x = x + randint(-40, 0)
-		self.y = y + randint(-40, 0)
-		self.score = score
-		self.t = FPS // 2
+    '''
+    x, y - координаты сообщения о количестве начисленных очков
+    score - количество начисленных очков
+    t - время жизни сообщения
+    '''
+    def __init__(self, x, y, score):
+        self.x = x + randint(-40, 0)
+        self.y = y + randint(-40, 0)
+        self.score = score
+        self.t = FPS // 2
 	
-	def print_score(self):
-		screen.blit(font_plus_score.render('+' + str(self.score), True, WHITE), (self.x, self.y))
-		self.t -= 1
-		if self.t <= 0:
-			del self
+    def print_score(self):  # вывод сообщения о количестве очков за пойманный шарик в месте щелчка
+        screen.blit(font_plus_score.render('+' + str(self.score), True, WHITE), (self.x, self.y))
+        self.t -= 1
+        if self.t <= 0:
+            del self
 
 
 def count_if_hit_ball(pos):
-    global special_ball
+    '''
+    Проверка попадания места щелчка в шарик и обновление суммы очков
+    '''
     x_click, y_click = pos
     for color_balls in balls.colors_balls.values():
         for ball in color_balls:
@@ -142,7 +167,10 @@ def count_if_hit_ball(pos):
 
 
 def print_count():
-	screen.blit(font_score.render('Score: ' + str(count), True, WHITE), (0, 0))
+    '''
+    Вывод сообщения о текущем количестве очков в левый верхний угол экрана
+    '''
+    screen.blit(font_score.render('Score: ' + str(count), True, WHITE), (0, 0))
 
 
 pygame.display.update()
