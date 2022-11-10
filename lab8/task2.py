@@ -176,7 +176,7 @@ def print_count():
     '''
     Вывод сообщения о текущем количестве очков в левый верхний угол экрана
     '''
-    screen.blit(font_score.render('Score: ' + str(count), True, WHITE), (0, 0))
+    screen.blit(font_score.render('Score: ' + str(count), True, WHITE), (randint(0, max(0, count - 100) // 10), randint(0, max(0, count - 100) // 10)))
 
 
 pygame.display.update()
