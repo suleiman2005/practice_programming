@@ -12,6 +12,7 @@ RMIN, RMAX = 10, 30
 screen = pygame.display.set_mode((1500, 800))
 font_score = pygame.font.SysFont('Comic Sans MS', 50, True)
 font_plus_score = pygame.font.SysFont('Comic Sans MS', 30, True)
+font_stage = pygame.font.SysFont('Comic Sans MS', 100)
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -146,6 +147,20 @@ class Plus_Score():
             del self
 
 
+class Stage():
+	def __init__(self):
+		self.stage = 0
+		self.t = 0
+	
+	def print_if_need(self, count):
+		if self.t == 0 and count >= 100*self.stage:
+			self.stage += 1
+			self.t = 2 * FPS
+		if self.t > 0:
+			self.t -= 1
+			screen.blit(font_stage.render('Stage ' + str(self.stage), True, WHITE), (600, 300))
+
+
 def count_if_hit_ball(pos):
     '''
     Проверка попадания места щелчка в шарик и обновление суммы очков
@@ -177,6 +192,7 @@ def print_count():
     Вывод сообщения о текущем количестве очков в левый верхний угол экрана
     '''
     screen.blit(font_score.render('Score: ' + str(count), True, WHITE), (randint(0, max(0, count - 100) // 10), randint(0, max(0, count - 100) // 10)))
+    screen.blit(font_score.render('Stage: ' + str(stage.stage), True, WHITE), (1280 - randint(0, max(0, count - 100) // 10), randint(0, max(0, count - 100) // 10)))
 
 
 pygame.display.update()
@@ -186,6 +202,7 @@ balls = Balls()
 special_ball = Ball(True)
 plus_scores = Plus_Scores()
 count = 0
+stage = Stage()
 
 while not finished:
     clock.tick(FPS)
@@ -201,6 +218,7 @@ while not finished:
     print_count()
     plus_scores.print_scores()
     plus_scores.remove_old()
+    stage.print_if_need(count)
     pygame.display.update()
     screen.fill(BLACK)
     if special_ball.t <= 0:
